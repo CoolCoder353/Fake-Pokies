@@ -46,46 +46,27 @@ class Pokie_Machine {
     }
 
     matches_pattern(result_str, pattern) {
-        if (result_str.length !== pattern.length) {
-            return false;
-        }
-
-        for (let i = 0; i < result_str.length; i++) {
-            if (pattern[i] !== '*' && result_str[i] !== pattern[i]) {
-                return false;
-            }
-        }
-        return true;
+        const result_arr = [...result_str];
+        const pattern_arr = [...pattern];
+        if (result_arr.length !== pattern_arr.length) return false;
+        return pattern_arr.every((char, i) => char === '*' || result_arr[i] === char);
     }
 
     matches_unordered(result_str, pattern) {
-        const result_symbols = result_str.split('');
-        const pattern_symbols = pattern.split('').filter(c => c !== '*');
-
-        if (result_symbols.length !== result_str.split('').length) {
-            return false;
-        }
-
-        // Count occurrences of each symbol in both
-        const result_counts = {};
-        const pattern_counts = {};
-
-        for (let symbol of result_symbols) {
-            result_counts[symbol] = (result_counts[symbol] || 0) + 1;
-        }
-
-        for (let symbol of pattern_symbols) {
-            pattern_counts[symbol] = (pattern_counts[symbol] || 0) + 1;
-        }
-
-        // Check if result contains at least the required symbols from pattern
-        for (let symbol in pattern_counts) {
-            if ((result_counts[symbol] || 0) < pattern_counts[symbol]) {
-                return false;
+        const count = (str) => {
+            const map = {};
+            for (let symbol of str.split('')) {
+                if (symbol !== '*') map[symbol] = (map[symbol] || 0) + 1;
             }
-        }
+            return map;
+        };
 
-        return true;
+        const result_counts = count(result_str);
+        const pattern_counts = count(pattern);
+
+        return Object.entries(pattern_counts).every(
+            ([symbol, count]) => (result_counts[symbol] || 0) >= count
+        );
     }
 
 
