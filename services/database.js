@@ -52,6 +52,16 @@ class Database {
         return false;
     }
 
+    register_user(username, password) {
+        if (this.find_user_by_username(username)) {
+            return false;
+        }
+        let new_user = new User(this.users.length + 1, username, 1000);
+        new_user.set_password(password);
+        this.create_user(new_user);
+        return new_user;
+    }
+
     create_user(user) {
         this.users.push(user);
         this.save_users()
