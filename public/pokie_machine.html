@@ -412,8 +412,16 @@
 
         var audio = new Audio('ding.mp3');
 
-
         const symbols = ['❤️', '🌟', '🥑', '🔔', '💰'];
+
+        const user = JSON.parse(window.localStorage.getItem('user')) || JSON.parse(window.sessionStorage.getItem('user'));
+
+        if (!user) {
+            alert('No user found. Please log in again.');
+            window.location.href = '/login.html';
+        }
+
+        balance = user.cash;
 
         // Initialize display
         updateDisplay();
@@ -442,7 +450,7 @@
             $.ajax({
                 url: '/pokie/spin',
                 method: 'POST',
-                data: JSON.stringify({ bet_amount: $("#currentBet").val(), machine_id: 1, user_id: 1 }),
+                data: JSON.stringify({ bet_amount: $("#currentBet").val(), machine_id: 1, user_id: user.id }),
                 contentType: 'application/json',
                 success: function (response) {
                     completedSpin = false;

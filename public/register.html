@@ -7,6 +7,7 @@
     <title>Register - Lucky Pokies</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <style>
         :root {
             --primary-gold: #FFD700;
@@ -236,13 +237,6 @@
                     <input type="text" class="form-control" id="username" placeholder="Choose a username" required>
                     <small class="form-text">3-20 characters, alphanumeric only</small>
                 </div>
-
-                <div class="mb-3">
-                    <label for="email" class="form-label">Email Address</label>
-                    <input type="email" class="form-control" id="email" placeholder="Enter your email" required>
-                    <small class="form-text">We'll never share your email</small>
-                </div>
-
                 <div class="mb-3">
                     <label for="password" class="form-label">Password</label>
                     <input type="password" class="form-control" id="password" placeholder="Create a strong password"
@@ -260,16 +254,10 @@
                 </div>
 
                 <div class="mb-3 form-check">
-                    <input type="checkbox" class="form-check-input" id="terms" required>
-                    <label class="form-check-label" for="terms">
-                        I agree to the <a href="#" style="color: var(--primary-gold);">Terms & Conditions</a>
-                    </label>
-                </div>
-
-                <div class="mb-3 form-check">
                     <input type="checkbox" class="form-check-input" id="responsible">
                     <label class="form-check-label" for="responsible">
-                        I confirm I am 18+ and will play responsibly
+                        I confirm I am 18+ and will play responsibly on this fake website. This is a demo and not a real
+                        gambling platform.
                     </label>
                 </div>
 
@@ -286,77 +274,70 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Password strength indicator
-        document.getElementById('password').addEventListener('input', (e) => {
-            const password = e.target.value;
-            const strengthBar = document.getElementById('strengthBar');
-            let strength = 0;
+        $(document).ready(function () {
+            $('#registerForm').on('submit', function (e) {
+                e.preventDefault();
 
-            if (password.length >= 8) strength += 25;
-            if (/[a-z]/.test(password)) strength += 25;
-            if (/[A-Z]/.test(password)) strength += 25;
-            if (/[0-9]/.test(password)) strength += 25;
+                let username = $('#username').val();
+                let password = $('#password').val();
 
-            strengthBar.style.width = strength + '%';
-            if (strength < 50) strengthBar.style.backgroundColor = '#ff6b6b';
-            else if (strength < 75) strengthBar.style.backgroundColor = '#ffd700';
-            else strengthBar.style.backgroundColor = '#51cf66';
+                $.ajax({
+                    url: '/auth/register',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        username: username,
+                        password: password
+                    }),
+                    success: function (response) {
+                        $('#successMessage').text(response.message).show();
+                        $('#errorMessage').hide();
+                        setTimeout(() => {
+                            window.location.href = '/login.html';
+                        }, 2000);
+                    },
+                    error: function (xhr) {
+                        let errorMsg = xhr.responseJSON ? xhr.responseJSON.error : 'An error occurred';
+                        $('#errorMessage').text(errorMsg).show();
+                        $('#successMessage').hide();
+                    }
+                });
+            });
         });
 
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        function evaluatePasswordStrength(password) {
+            let strength = 0;
+            if (password.length >= 8) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
 
-            const username = document.getElementById('username').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
+            return strength;
+        }
 
-            // Clear previous messages
-            document.getElementById('errorMessage').style.display = 'none';
-            document.getElementById('successMessage').style.display = 'none';
+        $('#password').on('input', function () {
+            let password = $(this).val();
+            let strength = evaluatePasswordStrength(password);
+            let strengthBar = $('#strengthBar');
 
-            // Validation
-            if (password !== confirmPassword) {
-                document.getElementById('errorMessage').textContent = 'Passwords do not match';
-                document.getElementById('errorMessage').style.display = 'block';
-                return;
-            }
-
-            if (password.length < 8) {
-                document.getElementById('errorMessage').textContent = 'Password must be at least 8 characters';
-                document.getElementById('errorMessage').style.display = 'block';
-                return;
-            }
-
-            if (!/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
-                document.getElementById('errorMessage').textContent = 'Password must contain uppercase letters and numbers';
-                document.getElementById('errorMessage').style.display = 'block';
-                return;
-            }
-
-            try {
-                const response = await fetch('/api/auth/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ username, email, password })
-                });
-
-                if (response.ok) {
-                    document.getElementById('successMessage').textContent = 'Account created successfully! Redirecting to login...';
-                    document.getElementById('successMessage').style.display = 'block';
-                    setTimeout(() => {
-                        window.location.href = 'login.html';
-                    }, 2000);
-                } else {
-                    const data = await response.json();
-                    document.getElementById('errorMessage').textContent = data.message || 'Registration failed. Please try again.';
-                    document.getElementById('errorMessage').style.display = 'block';
-                }
-            } catch (error) {
-                document.getElementById('errorMessage').textContent = 'An error occurred. Please try again.';
-                document.getElementById('errorMessage').style.display = 'block';
+            switch (strength) {
+                case 0:
+                case 1:
+                    strengthBar.css('width', '20%').css('background', '#dc3545');
+                    break;
+                case 2:
+                    strengthBar.css('width', '40%').css('background', '#ffc107');
+                    break;
+                case 3:
+                    strengthBar.css('width', '60%').css('background', '#28a745');
+                    break;
+                case 4:
+                    strengthBar.css('width', '80%').css('background', '#28a745');
+                    break;
+                case 5:
+                    strengthBar.css('width', '100%').css('background', '#28a745');
+                    break;
             }
         });
     </script>
