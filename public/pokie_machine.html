@@ -318,10 +318,15 @@
             <a class="navbar-brand" href="index.html">
                 <i class="fas fa-dice"></i> Lucky Pokies
             </a>
+            <div id="logged_in_as" class="ms-auto">Logged in as No One</div>
             <div class="ms-auto">
+                <a id="logout" class="btn btn-logout me-2">
+                    <i class="fas fa-sign-out-alt"></i>Log out
+                </a>
                 <a href="index.html" class="btn btn-logout me-2">
                     <i class="fas fa-sign-out-alt"></i> Exit Game
                 </a>
+
             </div>
         </div>
     </nav>
@@ -397,6 +402,9 @@
             </div>
         </div>
     </div>
+    <footer class="text-center text-white py-3">
+        This is a demo site for educational purposes only and not a real gambling platform.
+    </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -421,7 +429,15 @@
             window.location.href = '/login.html';
         }
 
+        $('#logged_in_as').text('Logged in as ' + user.username);
+
         balance = user.cash;
+
+        $('#logout').on('click', function () {
+            localStorage.removeItem('user');
+            sessionStorage.removeItem('user');
+            window.location.href = '/login.html';
+        });
 
         // Initialize display
         updateDisplay();
@@ -444,6 +460,7 @@
         }
 
         function spin() {
+            if (!completedSpin || balance < currentBet || isSpinning) return;
 
             //Start spinning animation
             $('.reel').addClass('spinning');
@@ -490,7 +507,7 @@
                         updateDisplay();
                         setTimeout(() => {
                             completedSpin = true;
-                        }, 1500);
+                        }, 500);
                     }, 3000); // Match the duration of the spin animation
                 },
                 error: function (error) {
@@ -500,6 +517,11 @@
         }
 
         function autoSpin() {
+            spin();
+            $('#autoSpinBtn').text('Stop Auto Spin').off('click').addClass('btn-danger').on('click', function () {
+                clearInterval(autoSpinInterval);
+                $('#autoSpinBtn').text('Auto Spin').off('click').removeClass('btn-danger').on('click', autoSpin);
+            });
             const autoSpinInterval = setInterval(() => {
                 if (balance < currentBet) {
                     clearInterval(autoSpinInterval);
@@ -509,7 +531,7 @@
                 if (completedSpin) {
                     spin();
                 }
-            }, 3000);
+            }, 1500);
         }
 
 
