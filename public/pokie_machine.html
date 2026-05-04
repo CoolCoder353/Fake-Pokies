@@ -320,6 +320,9 @@
             </a>
             <div id="logged_in_as" class="ms-auto">Logged in as No One</div>
             <div class="ms-auto">
+                <a id="admin" class="btn btn-logout me-2" href="dashboard.html">
+                    <i class="fas fa-tachometer-alt"></i>Dashboard
+                </a>
                 <a id="logout" class="btn btn-logout me-2">
                     <i class="fas fa-sign-out-alt"></i>Log out
                 </a>
@@ -429,6 +432,12 @@
             window.location.href = '/login.html';
         }
 
+        if (user.isAdmin) {
+            $('#admin').show();
+        } else {
+            $('#admin').hide();
+        }
+
         $('#logged_in_as').text('Logged in as ' + user.username);
 
         balance = user.cash;
@@ -439,7 +448,26 @@
             window.location.href = '/login.html';
         });
 
-        // Initialize display
+        // Load user stats from server
+        function loadUserStats() {
+            $.ajax({
+                url: '/pokie/userStats/' + user.id,
+                method: 'GET',
+                success: function (stats) {
+                    totalSpins = stats.spins;
+                    totalWon = stats.won;
+                    totalLost = stats.lost;
+                    balance = stats.cash;
+                    updateDisplay();
+                },
+                error: function (error) {
+                    console.error('Error loading user stats:', error);
+                }
+            });
+        }
+
+        // Initialize display and load stats
+        loadUserStats();
         updateDisplay();
 
         // Event listeners
@@ -505,6 +533,10 @@
                             $('.result-text').text('0').removeClass('win').addClass('lose');
                         }
                         updateDisplay();
+
+                        // Refresh stats from server after spin completes
+                        loadUserStats();
+
                         setTimeout(() => {
                             completedSpin = true;
                         }, 500);

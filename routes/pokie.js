@@ -26,6 +26,12 @@ module.exports = (db, machine_list) => {
         let payout = Math.round(machine.calculate_payout(spin) * req.body.bet_amount * 100) / 100; // Round payout to 2 decimal places
 
         user.modify_cash(-req.body.bet_amount);
+
+        user.lost += parseFloat(req.body.bet_amount);
+        user.won += parseFloat(payout);
+        user.spins += 1;
+
+
         if (payout > 0) {
             user.modify_cash(payout);
         }
@@ -38,6 +44,22 @@ module.exports = (db, machine_list) => {
 
         return res.json({ message: "Spin completed", result: serialized_spin, payout: payout, cash: user.cash() });
     });
+
+
+    router.get("/userStats/:id", (req, res) => {
+        let user = db.find_user_by_id(req.params.id);
+
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        return res.json({
+            spins: user.times_spun(),
+            won: user.wins(),
+            lost: user.losses(),
+            cash: user.cash()
+        });
+    })
 
     return router;
 };

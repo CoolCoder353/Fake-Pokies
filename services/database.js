@@ -6,6 +6,8 @@ class Database {
     load_users() {
         const data = JSON.parse(fs.readFileSync(this.file_path, 'utf8'));
         this.users = data.users.map(user_data => User.deserialize(JSON.stringify(user_data)));
+
+        console.log("Loaded " + this.users.length + " users from database");
     }
 
 
@@ -66,6 +68,10 @@ class Database {
     create_user(user) {
         this.users.push(user);
         this.save_users()
+    }
+
+    get_all_users() {
+        return this.users;
     }
 }
 

@@ -293,7 +293,7 @@
                 error: function (xhr) {
                     let errorResponse = xhr.responseJSON;
                     $('#successMessage').hide();
-                    $('#errorMessage').text(errorResponse.message).show();
+                    $('#errorMessage').text("Error code: " + xhr.status + " - " + errorResponse.message).show();
                 }
             });
         });

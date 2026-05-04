@@ -1,8 +1,5 @@
 Index page stats need to be real
 
-
-Pokie stats for each player should be real
-
 Last payouts bar on homepage
 
 More machines
@@ -10,4 +7,8 @@ More machines
 Jackpot animation and sounds
 
 Rasberry pi big button
+
+Complete:
+Admin Dashboard
+Pokie stats for each player should be real
 
