@@ -410,6 +410,8 @@
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tsparticles/confetti@3.9.1/tsparticles.confetti.bundle.min.js"></script>
+
     <script>
         // Game variables
         let currentBet = 10;
@@ -532,6 +534,12 @@
                             totalLost += currentBet;
                             $('.result-text').text('0').removeClass('win').addClass('lose');
                         }
+
+                        if (response.payout > $("#currentBet").val() * 1.99) {
+                            let timeToCel = response.payout / $("#currentBet").val() + 2.5;
+                            jackpotAnimation(timeToCel);
+
+                        }
                         updateDisplay();
 
                         // Refresh stats from server after spin completes
@@ -548,6 +556,50 @@
             });
         }
 
+        //Code for confetii from https://confetti.js.org/
+        function jackpotAnimation(timeToCelebrate) {
+            isSpinning = true;
+            completedSpin = false;
+
+            const animationduration = timeToCelebrate * 1000;
+            const fullAnimationTime = animationduration + 500;
+
+            setTimeout(() => {
+                completedSpin = true;
+                isSpinning = false;
+            }, fullAnimationTime);
+            animationEnd = Date.now() + animationduration;
+            defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            const interval = setInterval(function () {
+                const timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                const particleCount = 50 * (timeLeft / animationduration);
+
+                // since particles fall down, start a bit higher than random
+                confetti(
+                    Object.assign({}, defaults, {
+                        particleCount,
+                        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+                    })
+                );
+                confetti(
+                    Object.assign({}, defaults, {
+                        particleCount,
+                        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+                    })
+                );
+            }, 250);
+        }
+
         function autoSpin() {
             spin();
             $('#autoSpinBtn').text('Stop Auto Spin').off('click').addClass('btn-danger').on('click', function () {
@@ -560,6 +612,7 @@
                     alert('Not enough balance to continue auto spinning!');
                     return;
                 }
+                // Only spin if previous spin and all animations are fully complete
                 if (completedSpin) {
                     spin();
                 }

@@ -4,11 +4,11 @@ Last payouts bar on homepage
 
 More machines
 
-Jackpot animation and sounds
+
 
 Rasberry pi big button
 
 Complete:
 Admin Dashboard
 Pokie stats for each player should be real
-
+Jackpot animation and sounds

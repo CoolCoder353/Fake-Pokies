@@ -9,6 +9,7 @@ let machine_list = [];
 let machine_symbols = ['❤️', '🌟', '🥑', '🔔', '💰'];
 let machine_probabilities = [0.54, 0.3, 0.1, 0.05, 0.01];
 let machine_payout_table = {
+    // "~❤️**": 5,
     "~🔔**": 0.40,
     "~💰**": 0.80,
     "❤️❤️❤️": 1,
