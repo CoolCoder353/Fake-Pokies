@@ -7,6 +7,8 @@
     <title>Lucky Pokies - Home</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
     <style>
         :root {
             --primary-gold: #FFD700;
@@ -254,13 +256,13 @@
             <div class="col-md-3">
                 <div class="stats-box">
                     <div class="number">25+</div>
-                    <div class="label">Games Available</div>
+                    <div class="label">Total Spins</div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="stats-box">
                     <div class="number">24/7</div>
-                    <div class="label">Support Team</div>
+                    <div class="label">Total Lost</div>
                 </div>
             </div>
         </div>
@@ -270,6 +272,34 @@
     <footer class="text-center text-white py-3">
         This is a demo site for educational purposes only and not a real gambling platform.
     </footer>
+
+    <script>
+        $(document).ready(function () {
+            // Example of a simple animation for the hero section
+            $('.hero-content h1').hide().fadeIn(2000);
+            $('.hero-content p').hide().delay(1000).fadeIn(2000);
+            $('.cta-buttons a').hide().delay(2000).fadeIn(2000);
+
+            $.ajax({
+                url: '/stats/global-stats',
+                method: 'GET',
+                success: function (data) {
+                    console.log('Global Stats:', data);
+
+                    // Update the stats boxes with the retrieved data
+                    $('.stats-box').eq(0).find('.number').text(data.totalUsers);
+                    $('.stats-box').eq(1).find('.number').text(`$${data.totalWon}`);
+                    $('.stats-box').eq(2).find('.number').text(data.totalSpins);
+                    $('.stats-box').eq(3).find('.number').text(`$${data.totalLost}`);
+                },
+                error: function (error) {
+                    console.error('AJAX Request Failed:', error);
+                }
+            });
+        });
+
+
+    </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 </body>

@@ -33,6 +33,7 @@ app.use(express.static('public'));
 app.use("/auth", require("./routes/auth")(db));
 app.use("/pokie", require("./routes/pokie")(db, machine_list));
 app.use("/admin", require("./routes/admin")(db));
+app.use("/stats", require("./routes/stats")(db));
 
 app.listen(3000, () => {
     console.log("Server is running on port 3000");
