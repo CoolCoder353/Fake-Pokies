@@ -5,10 +5,14 @@ const MAX_PAYOUTS = 50;
 function loadPayouts() {
     try {
         const data = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+        data.payouts.sort(() => Math.random() - 0.5);
+
         return data.payouts || [];
     } catch (e) {
+        console.error("Failed to load payouts:", e);
         return [];
     }
+
 }
 
 function savePayouts(payouts) {
