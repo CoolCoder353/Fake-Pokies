@@ -1,5 +1,6 @@
 const express = require("express");
 const Pokie_Machine = require("../services/pokie");
+const recentPayouts = require("../services/recent_payouts");
 
 
 module.exports = (db, machine_list) => {
@@ -34,6 +35,7 @@ module.exports = (db, machine_list) => {
 
         if (payout > 0) {
             user.modify_cash(payout);
+            recentPayouts.addPayout(user.username, payout);
         }
         db.save_users();
 

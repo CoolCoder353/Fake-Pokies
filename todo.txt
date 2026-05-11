@@ -1,4 +1,3 @@
-Last payouts bar on homepage
 
 More machines
 
@@ -9,3 +8,5 @@ Admin Dashboard
 Pokie stats for each player should be real
 Jackpot animation and sounds
 Index page stats need to be real
+Last payouts bar on homepage
+

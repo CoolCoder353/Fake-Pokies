@@ -21,6 +21,92 @@
             color: #fff;
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-top: 40px;
+        }
+
+        /* Payout Ticker Bar */
+        .payout-ticker-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: linear-gradient(90deg, #2d1b69, #1a1a2e, #2d1b69);
+            border-bottom: 2px solid var(--primary-gold);
+            overflow: hidden;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+        }
+
+        .payout-ticker-label {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 40px;
+            line-height: 40px;
+            padding: 0 20px;
+            background: linear-gradient(90deg, var(--primary-purple), #2d1b69);
+            color: var(--primary-gold);
+            font-weight: bold;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            z-index: 2;
+            border-right: 2px solid var(--primary-gold);
+        }
+
+        .payout-ticker-label i {
+            margin-right: 6px;
+        }
+
+        .payout-ticker-track {
+            display: flex;
+            white-space: nowrap;
+            animation: ticker-scroll 40s linear infinite;
+        }
+
+        .payout-ticker-track:hover {
+            animation-play-state: paused;
+        }
+
+        @keyframes ticker-scroll {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .payout-item {
+            display: inline-flex;
+            align-items: center;
+            padding: 0 25px;
+            height: 40px;
+            font-size: 0.85rem;
+            color: #e0e0e0;
+            gap: 8px;
+        }
+
+        .payout-item .username {
+            color: var(--primary-gold);
+            font-weight: bold;
+        }
+
+        .payout-item .amount {
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        .payout-item .time {
+            color: #9ca3af;
+            font-size: 0.8rem;
+        }
+
+        .payout-item .sep {
+            color: #4ade80;
+            font-weight: bold;
         }
 
         .navbar {
@@ -172,6 +258,16 @@
 </head>
 
 <body>
+    <!-- Payout Ticker Bar -->
+    <div class="payout-ticker-wrapper">
+        <div class="payout-ticker-label">
+            <i class="fas fa-trophy"></i> RECENT WINS
+        </div>
+        <div class="payout-ticker-track" id="payoutTrack">
+            <div class="payout-item">Loading payouts...</div>
+        </div>
+    </div>
+
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container-fluid">
@@ -296,8 +392,59 @@
                     console.error('AJAX Request Failed:', error);
                 }
             });
+
+            // Fetch and populate the payout ticker
+            loadPayoutTicker();
+            // Refresh payouts every 10 seconds
+            setInterval(loadPayoutTicker, 10000);
         });
 
+        function loadPayoutTicker() {
+            $.ajax({
+                url: '/stats/recent-payouts',
+                method: 'GET',
+                success: function (data) {
+                    if (!data || data.length === 0) {
+                        $('#payoutTrack').html('<div class="payout-item">No recent payouts yet</div>');
+                        return;
+                    }
+
+                    let html = '';
+                    $.each(data, function (index, payout) {
+                        let timeAgo = getTimeAgo(payout.timestamp);
+                        html += '<div class="payout-item">';
+                        html += '<span class="username">' + escapeHtml(payout.username) + '</span>';
+                        html += '<span class="sep">won</span>';
+                        html += '<span class="amount">$' + payout.amount.toFixed(2) + '</span>';
+                        html += '<span class="time">(' + timeAgo + ')</span>';
+                        html += '</div>';
+                    });
+
+                    // Duplicate the content for seamless looping
+                    $('#payoutTrack').html(html + html);
+                },
+                error: function (error) {
+                    console.error('Failed to load payouts:', error);
+                }
+            });
+        }
+
+        function getTimeAgo(timestamp) {
+            var seconds = Math.floor((Date.now() - timestamp) / 1000);
+            if (seconds < 60) return seconds + 's ago';
+            var minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return minutes + 'm ago';
+            var hours = Math.floor(minutes / 60);
+            if (hours < 24) return hours + 'h ago';
+            var days = Math.floor(hours / 24);
+            return days + 'd ago';
+        }
+
+        function escapeHtml(str) {
+            var div = document.createElement('div');
+            div.appendChild(document.createTextNode(str));
+            return div.innerHTML;
+        }
 
     </script>
 

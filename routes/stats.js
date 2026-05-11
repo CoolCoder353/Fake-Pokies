@@ -1,10 +1,13 @@
 const express = require('express');
-
+const recentPayouts = require('../services/recent_payouts');
 
 
 module.exports = (db) => {
     const router = express.Router();
 
+    router.get('/recent-payouts', (req, res) => {
+        return res.json(recentPayouts.getRecentPayouts(20));
+    });
 
     router.get('/global-stats', (req, res) => {
         let users = db.get_all_users();
